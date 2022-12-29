@@ -13,6 +13,7 @@ import com.proyecto.sistema.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -34,12 +35,14 @@ public class UsuarioController {
         return "Usuario " + name + " ha sido " +accion;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/guardar-profesor")
     public ResponseEntity<MessageDTO> guardarUsuarioProfesor(@Valid @RequestBody UsuarioDTO usuarioDTO) throws ResourceFoundException {
         Usuario usuario = usuarioService.guardarUsuarioProfesor(usuarioDTO);
         String message = "Usuario profesor " + usuario.getUsername() + " ha sido creado";
         return  ResponseEntity.ok(new MessageDTO(HttpStatus.CREATED,messageMethod(usuario.getNombre(),"ha sido creado")));
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/guardar-alumno")
     public ResponseEntity<MessageDTO> guardarUsuarioAlumno(@Valid @RequestBody UsuarioDTO usuarioDTO) throws ResourceFoundException {
         Usuario usuario = usuarioService.guardarUsuarioAlumno(usuarioDTO);
@@ -52,29 +55,31 @@ public class UsuarioController {
         return (UsuarioPrincipal) userDetailsService.loadUserByUsername(principal.getName());
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/obtener-usuario/{username}")
     public UsuarioDTO obtenerUsuario(@PathVariable(name = "username")String username) throws ResourceNotFoundException {
         return usuarioService.obtenerUsuario(username);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @PutMapping("/actualizar-usuario")
     public ResponseEntity<MessageDTO> actualizarUsuario(@Valid @RequestBody UsuarioDTO usuarioDTO) throws ResourceFoundException, ResourceNotFoundException {
         Usuario usuario= usuarioService.actualizarUsuario(usuarioDTO);
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,messageMethod(usuario.getUsername(),"actualizado")));
     }
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageDTO> eliminarUsuario(@PathVariable(name = "id")Long id) throws ResourceNotFoundException {
         Usuario usuario = usuarioService.eliminarUsuario(id);
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,messageMethod(usuario.getUsername(),"eliminado")));
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @GetMapping("/listar-alumnos")
     public ResponseEntity<List<UsuarioDTO>> listarUsuariosAlumno() throws ResourceNotFoundException {
         Rol rol = rolService.obtenerRol("ROLE_ALUMNO");
         return ResponseEntity.ok(usuarioService.listarPorRol(rol));
     }
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/listar-profesores")
     public ResponseEntity<List<UsuarioDTO>> listarUsuariosProfesor() throws ResourceNotFoundException {
         Rol rol = rolService.obtenerRol("ROLE_PROFESOR");

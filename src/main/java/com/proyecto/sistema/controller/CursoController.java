@@ -21,7 +21,7 @@ public class CursoController {
     @Autowired
     private ICursoService cursoService;
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
     public ResponseEntity<MessageDTO> guardar(@Valid @RequestBody CursoDTO cursoDTO) throws ResourceFoundException {
         Curso curso = cursoService.guardarCurso(cursoDTO);
@@ -29,7 +29,7 @@ public class CursoController {
         return ResponseEntity.ok(new MessageDTO(HttpStatus.CREATED,message));
     }
 
-   //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/")
     public  ResponseEntity<MessageDTO> actualizarCurso(@Valid @RequestBody CursoDTO cursoDTO) throws ResourceFoundException, ResourceNotFoundException {
         Curso curso  = cursoService.actualizarCurso(cursoDTO);
@@ -37,14 +37,14 @@ public class CursoController {
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,message));
     }
 
-   // @PreAuthorize("hasAnyRole('ADMIN','PROFESOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROFESOR','ALUMNO')")
     @GetMapping("/")
     public ResponseEntity<Set<CursoDTO>> listarCursos(){
         return ResponseEntity.ok(cursoService.listarCursos());
     }
 
 
-   // @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageDTO>  eliminarCurso(@PathVariable(name = "id") Long id) throws Exception {
         Curso curso = cursoService.eliminarCurso(id);
@@ -52,7 +52,7 @@ public class CursoController {
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,message));
     }
 
-   // @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/obtener/{id}")
     public ResponseEntity<CursoDTO> obtenerCurso(@PathVariable(name = "id") Long id) throws ResourceNotFoundException {
         return ResponseEntity.ok(cursoService.obtenerCurso(id));

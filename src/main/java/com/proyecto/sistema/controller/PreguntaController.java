@@ -11,6 +11,7 @@ import com.proyecto.sistema.service.IPreguntaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,51 +29,44 @@ public class PreguntaController {
     @Autowired
     private PreguntaMapper mapper;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @PostMapping("/")
     public ResponseEntity<MessageDTO> guardarPregunta(@Valid @RequestBody PreguntaDTO preguntaDTO){
         preguntaService.guardarPregunta(preguntaDTO);
         return ResponseEntity.ok(new MessageDTO(HttpStatus.CREATED,"Pregunta registrada"));
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @PutMapping("/")
     public ResponseEntity<MessageDTO> actualizarPregunta(@Valid @RequestBody PreguntaDTO preguntaDTO) throws ResourceNotFoundException {
         preguntaService.actualizarPregunta(preguntaDTO);
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,"Pregunta actualizada"));
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/")
     public ResponseEntity<List<PreguntaDTO>> listarPreguntas(){
         return ResponseEntity.ok(preguntaService.listarPreguntas());
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageDTO> eliminarPregunta(@PathVariable(name = "id")Long id) throws ResourceNotFoundException {
         preguntaService.eliminarPregunta(id);
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,"Pregunta eliminada"));
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/obtener/{id}")
     public ResponseEntity<PreguntaDTO> obtenerPregunta(@PathVariable("id") Long id) throws ResourceNotFoundException {
         return ResponseEntity.ok(preguntaService.obtenerPregunta(id));
     }
-
-    @GetMapping("/preguntasexamen/{id}")
-    public ResponseEntity<List<PreguntaDTO>> obtenerPreguntasDelExamen(@PathVariable(name = "id")Long id) throws ResourceNotFoundException {
-        Examen examen = examenService.obtenerExamen2(id);
-        Set<Pregunta> preguntas = examen.getLstPreguntas();
-        List lstPreguntas = new ArrayList(preguntas);
-        if(lstPreguntas.size()>examen.getNumeroDePreguntas()){
-            lstPreguntas = lstPreguntas.subList(0,examen.getNumeroDePreguntas()+1);
-        }
-        Collections.shuffle(lstPreguntas);
-        return ResponseEntity.ok(lstPreguntas);
-    }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/preguntasexamen2/{id}")
     public ResponseEntity<List<PreguntaDTO>> listarPreguntasPorExamen(@PathVariable(name = "id") Long id){
         return ResponseEntity.ok(preguntaService.listarPreguntasPorExamen(id));
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @PostMapping("/evaluar-examen")
     public ResponseEntity<?> evaluarExamen(@RequestBody List<PreguntaDTO> preguntasDto) throws ResourceNotFoundException {
         double puntosMaximos = 0;

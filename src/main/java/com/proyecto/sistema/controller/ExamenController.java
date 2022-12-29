@@ -10,6 +10,7 @@ import com.proyecto.sistema.service.IExamenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +26,7 @@ public class ExamenController {
     @Autowired
     private ExamenMapper examenMapper;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @PostMapping("/")
     public ResponseEntity<MessageDTO> guardarExamen(@Valid @RequestBody ExamenDTO examenDTO){
         Examen examen = examenService.guardarExamen(examenDTO);
@@ -32,37 +34,39 @@ public class ExamenController {
         return ResponseEntity.ok(new MessageDTO(HttpStatus.CREATED,message));
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @PutMapping("/")
     public ResponseEntity<MessageDTO> actualizarExamen(@Valid @RequestBody ExamenDTO examenDTO) throws ResourceNotFoundException {
         Examen examen = examenService.actualizarExamen(examenDTO);
         String message = "Examen " + examen.getTitulo() + " ha sido actualizado";
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,message));
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/")
     public ResponseEntity<List<ExamenDTO>> listarExamenes(){
         return ResponseEntity.ok(examenService.listarExamenes());
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_PROFESOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageDTO> eliminarExamen(@PathVariable(name = "id") Long id) throws ResourceNotFoundException {
         Examen examen = examenService.eliminarExamen(id);
         String message = "El examen " +examen.getTitulo()+" ha sido eliminado";
         return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,message));
-        //return ResponseEntity.ok(new MessageDTO(HttpStatus.OK,message));
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/obtener/{id}")
     public ResponseEntity<ExamenDTO> obtenerExamen(@PathVariable(name = "id") Long id) throws ResourceNotFoundException {
         return ResponseEntity.ok(examenService.obtenerExamen(id));
     }
-
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/activos")
     public ResponseEntity<List<ExamenDTO>> listarExamenesActivos(){
         return ResponseEntity.ok(examenService.listarExamenesActivos());
     }
 
-    //esto esta en observacion porque es por examen y se pone un objeto y no un id qye llama a servicio para que sea un objeto y usarlo
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_ALUMNO','ROLE_PROFESOR')")
     @GetMapping("/activoscurso/{id}")
     public ResponseEntity<List<ExamenDTO>> listarExamenesActivosPorCurso(@PathVariable(name = "id")Long id){
         return ResponseEntity.ok(examenService.listarExamenesActivosPorCurso(id));

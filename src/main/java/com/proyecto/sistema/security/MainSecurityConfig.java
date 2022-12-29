@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true )
 public class MainSecurityConfig {
     //public class MainSecurityConfig extends WebSecurityConfigurerAdapter {--> esta en obsoleta
 
@@ -39,9 +39,10 @@ public class MainSecurityConfig {
         http.csrf().disable();
         http.cors();
         http.authorizeRequests().antMatchers("/auth/login").permitAll()
-                //.antMatchers("/api/curso/*").hasRole("ADMIN")
-                //.antMatchers(HttpMethod.GET,"/api/**").hasAnyAuthority("ROLE_ALUMNO","ROLE_PROFESOR")
                 .anyRequest().authenticated();
+                //.antMatchers(HttpMethod.GET,"/api/**").hasAnyAuthority("ROLE_ALUMNO","ROLE_PROFESOR")
+
+
 
         http.exceptionHandling().authenticationEntryPoint(jwtEntryPoint);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
